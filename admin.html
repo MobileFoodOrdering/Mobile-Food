@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CampusFood Admin</title>
+<style>
+body{font-family:Arial;margin:0;background:#f5f5f5}
+header{background:#333;color:white;text-align:center;padding:20px;color:white}
+.container{max-width:700px;margin:auto;padding:20px}
+.box{background:white;padding:18px;margin:15px 0;border-radius:10px;box-shadow:0 2px 5px #ccc}
+input{width:90%;padding:10px;margin:5px 0}
+button{background:#ff6b00;color:white;border:0;border-radius:6px;padding:10px;margin:4px}
+.delete,.remove{background:#d32f2f}
+.status{color:#ff6b00;font-weight:bold}
+.order{border-top:1px solid #ddd;padding:15px 0}
+.logout{background:#555}
+</style>
+</head>
+<body>
+
+<header>
+<h1>CampusFood Admin</h1>
+<p>Admin Dashboard</p>
+<button class="logout" id="logout">Logout</button>
+</header>
+
+<div class="container">
+<div class="box">
+<h2>Add Food</h2>
+<input id="foodName" placeholder="Food name">
+<input id="foodPrice" type="number" min="1" placeholder="Price">
+<button id="addFood">Add Food</button>
+</div>
+
+<div class="box">
+<h2>Food Menu</h2>
+<div id="foodList"></div>
+</div>
+
+<div class="box">
+<h2>Customer Orders</h2>
+<div id="orderList"></div>
+</div>
+</div>
+
+<script>
+// @ts-nocheck
+if(sessionStorage.getItem("adminLoggedIn")!=="true"){
+location.href="admin-login.html";
+}
+
+const defaults=[
+{name:"Chicken Rice",price:65},
+{name:"Burger",price:50},
+{name:"French Fries",price:35},
+{name:"Spaghetti",price:60},
+{name:"Iced Tea",price:25}
+];
+
+let foods=JSON.parse(localStorage.getItem("campusFoods"))||defaults;
+const foodList=document.getElementById("foodList");
+const orderList=document.getElementById("orderList");
+
+function saveFoods(){
+localStorage.setItem("campusFoods",JSON.stringify(foods));
+}
+
+function displayFoods(){
+foodList.innerHTML="";
+for(let i=0;i<foods.length;i++){
+let food=foods[i];
+let div=document.createElement("div");
+div.innerHTML="<p><b>"+food.name+"</b> — PHP "+
+Number(food.price).toFixed(2)+"</p>";
+let btn=document.createElement("button");
+btn.textContent="Delete";
+btn.className="delete";
+btn.onclick=function(){
+foods.splice(i,1);
+saveFoods();
+displayFoods();
+};
+div.appendChild(btn);
+foodList.appendChild(div);
+}
+}
+
+document.getElementById("addFood").onclick=function(){
+let name=document.getElementById("foodName").value.trim();
+let price=Number(document.getElementById("foodPrice").value);
+if(!name||price<=0){
+alert("Enter a food name and valid price.");
+return;
+}
+foods.push({name:name,price:price});
+saveFoods();
+displayFoods();
+document.getElementById("foodName").value="";
+document.getElementById("foodPrice").value="";
+};
+
+function displayOrders(){
+let orders=JSON.parse(localStorage.getItem("campusOrders"))||[];
+orderList.innerHTML="";
+if(!orders.length){
+orderList.textContent="No orders yet.";
+return;
+}
+
+for(let i=0;i<orders.length;i++){
+let order=orders[i];
+let div=document.createElement("div");
+div.className="order";
+let items="";
+
+for(let j=0;j<order.items.length;j++){
+let item=order.items[j];
+let qty=item.qty||1;
+items+="<p>"+item.name+" × "+qty+
+" — PHP "+(Number(item.price)*qty).toFixed(2)+"</p>";
+}
+
+div.innerHTML="<h3>Order #"+(i+1)+"</h3>"+items+
+"<p><b>Total: PHP "+Number(order.total).toFixed(2)+
+"</b></p><p>Status: <span class='status'>"+
+(order.status||"Pending")+"</span></p>";
+
+let statuses=["Pending","Preparing","Ready","Completed"];
+for(let j=0;j<statuses.length;j++){
+let btn=document.createElement("button");
+btn.textContent=statuses[j];
+btn.onclick=function(){
+let all=JSON.parse(localStorage.getItem("campusOrders"))||[];
+if(all[i]){
+all[i].status=statuses[j];
+localStorage.setItem("campusOrders",JSON.stringify(all));
+displayOrders();
+}
+};
+div.appendChild(btn);
+}
+orderList.appendChild(div);
+}
+}
+
+document.getElementById("logout").onclick=function(){
+sessionStorage.removeItem("adminLoggedIn");
+location.href="admin-login.html";
+};
+
+displayFoods();
+displayOrders();
+setInterval(displayOrders,3000);
+</script>
+</body>
+</html>

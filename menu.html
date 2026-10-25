@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CampusFood - Menu</title>
+<style>
+body{font-family:Arial;margin:0;background:#f5f5f5}
+header{background:#ff6b00;color:white;text-align:center;padding:20px}
+nav{text-align:center;background:white;padding:15px}
+nav a{margin:8px;color:#ff6b00;text-decoration:none;font-weight:bold}
+.container{max-width:700px;margin:auto;padding:20px}
+.food,.cart{background:white;padding:15px;margin:12px 0;border-radius:10px;box-shadow:0 2px 5px #ccc}
+button{background:#ff6b00;color:white;border:0;border-radius:6px;padding:9px 13px;margin:3px}
+.remove{background:#d32f2f}
+.qty{font-weight:bold}
+.total{font-size:20px;font-weight:bold}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>CampusFood</h1>
+<p>Food Menu</p>
+</header>
+
+<nav>
+<a href="index.html">Home</a>
+<a href="menu.html">Menu</a>
+<a href="orders.html">My Orders</a>
+<a href="admin-login.html">Admin</a>
+</nav>
+
+<div class="container">
+
+<h2>🍔 Available Food</h2>
+<div id="foodList"></div>
+
+<div class="cart">
+<h2>🛒 Your Cart</h2>
+<div id="cartList">Your cart is empty.</div>
+<p class="total">Total: PHP <span id="total">0.00</span></p>
+<button id="checkout">Place Order</button>
+</div>
+
+</div>
+
+<script>
+// @ts-nocheck
+
+const defaults=[
+{name:"Chicken Rice",price:65},
+{name:"Burger",price:50},
+{name:"French Fries",price:35},
+{name:"Spaghetti",price:60},
+{name:"Iced Tea",price:25}
+];
+
+let foods=JSON.parse(localStorage.getItem("campusFoods"))||defaults;
+let cart=[];
+
+const foodList=document.getElementById("foodList");
+const cartList=document.getElementById("cartList");
+const total=document.getElementById("total");
+
+function showFoods(){
+
+foodList.innerHTML="";
+
+for(let i=0;i<foods.length;i++){
+
+let food=foods[i];
+
+let div=document.createElement("div");
+div.className="food";
+
+div.innerHTML=
+"<h3>"+food.name+"</h3>"+
+"<p>PHP "+Number(food.price).toFixed(2)+"</p>";
+
+let btn=document.createElement("button");
+btn.textContent="Add to Cart";
+
+btn.onclick=function(){
+addToCart(food.name,Number(food.price));
+};
+
+div.appendChild(btn);
+foodList.appendChild(div);
+}
+}
+
+function addToCart(name,price){
+
+let found=-1;
+
+for(let i=0;i<cart.length;i++){
+
+if(cart[i].name===name){
+found=i;
+break;
+}
+
+}
+
+if(found>=0){
+cart[found].qty++;
+}else{
+cart.push({name:name,price:price,qty:1});
+}
+
+showCart();
+}
+
+function changeQty(index,amount){
+
+cart[index].qty+=amount;
+
+if(cart[index].qty<=0){
+cart.splice(index,1);
+}
+
+showCart();
+}
+
+function showCart(){
+
+cartList.innerHTML="";
+
+if(!cart.length){
+
+cartList.textContent="Your cart is empty.";
+total.textContent="0.00";
+return;
+
+}
+
+let sum=0;
+
+for(let i=0;i<cart.length;i++){
+
+let item=cart[i];
+sum+=item.price*item.qty;
+
+let div=document.createElement("div");
+
+div.innerHTML=
+"<b>"+item.name+"</b><br>"+
+"PHP "+Number(item.price).toFixed(2)+
+" × <span class='qty'>"+item.qty+"</span><br>";
+
+let minus=document.createElement("button");
+minus.textContent="−";
+minus.onclick=function(){
+changeQty(i,-1);
+};
+
+let plus=document.createElement("button");
+plus.textContent="+";
+plus.onclick=function(){
+changeQty(i,1);
+};
+
+let remove=document.createElement("button");
+remove.textContent="Remove";
+remove.className="remove";
+remove.onclick=function(){
+cart.splice(i,1);
+showCart();
+};
+
+div.appendChild(minus);
+div.appendChild(plus);
+div.appendChild(remove);
+
+cartList.appendChild(div);
+}
+
+total.textContent=sum.toFixed(2);
+}
+
+document.getElementById("checkout").onclick=function(){
+
+if(!cart.length){
+alert("Your cart is empty.");
+return;
+}
+
+let orders=
+JSON.parse(localStorage.getItem("campusOrders"))||[];
+
+let sum=0;
+
+let items=[];
+
+for(let i=0;i<cart.length;i++){
+
+let item=cart[i];
+
+sum+=item.price*item.qty;
+
+items.push({
+name:item.name,
+price:item.price,
+qty:item.qty
+});
+
+}
+
+orders.push({
+items:items,
+total:sum,
+status:"Pending"
+});
+
+localStorage.setItem(
+"campusOrders",
+JSON.stringify(orders)
+);
+
+alert("Order placed successfully!");
+
+cart=[];
+
+showCart();
+
+location.href="orders.html";
+};
+
+showFoods();
+showCart();
+
+</script>
+
+</body>
+</html>

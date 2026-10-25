@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CampusFood Admin Login</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#f97316;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.login-box{
+    width:90%;
+    max-width:360px;
+    background:white;
+    padding:30px;
+    border-radius:18px;
+    box-shadow:0 5px 20px #0004;
+}
+
+h2{
+    text-align:center;
+    color:#f97316;
+    margin-top:0;
+}
+
+input{
+    width:100%;
+    padding:13px;
+    margin:8px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    font-size:16px;
+}
+
+button{
+    width:100%;
+    padding:13px;
+    margin-top:12px;
+    border:0;
+    border-radius:8px;
+    background:#f97316;
+    color:white;
+    font-size:16px;
+    font-weight:bold;
+}
+
+button:active{
+    opacity:.8;
+}
+
+#error{
+    color:red;
+    text-align:center;
+    min-height:20px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="login-box">
+
+<h2>CampusFood Admin</h2>
+
+<input
+    id="username"
+    type="text"
+    placeholder="Username"
+    autocomplete="username"
+>
+
+<input
+    id="password"
+    type="password"
+    placeholder="Password"
+    autocomplete="current-password"
+>
+
+<button id="loginBtn">Login</button>
+
+<p id="error"></p>
+
+</div>
+
+<script>
+const usernameInput = document.getElementById("username");
+const passwordInput = document.getElementById("password");
+const loginBtn = document.getElementById("loginBtn");
+const error = document.getElementById("error");
+
+function login(){
+
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value;
+
+    if(username === "admin" && password === "admin123"){
+
+        sessionStorage.setItem("adminLoggedIn","true");
+
+        window.location.href = "admin.html";
+
+    }else{
+
+        error.textContent = "Wrong username or password.";
+
+    }
+}
+
+loginBtn.addEventListener("click", login);
+
+passwordInput.addEventListener("keydown", function(event){
+
+    if(event.key === "Enter"){
+        login();
+    }
+
+});
+</script>
+
+</body>
+</html>
