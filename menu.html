@@ -49,16 +49,39 @@ button{background:#ff6b00;color:white;border:0;border-radius:6px;padding:9px 13p
 <script>
 // @ts-nocheck
 
-const defaults=[
-{name:"Chicken Rice",price:65},
-{name:"Burger",price:50},
-{name:"French Fries",price:35},
-{name:"Spaghetti",price:60},
-{name:"Iced Tea",price:25}
+
+
+const defaults = [
+  {name:"Chicken Rice",price:65},
+  {name:"Burger",price:50},
+  {name:"French Fries",price:35},
+  {name:"Spaghetti",price:60},
+  {name:"Iced Tea",price:25},
+  {name:"Chicken Adobo with Rice",price:75},
+  {name:"Pork Menudo with Rice",price:80},
+  {name:"Pork Sinigang with Rice",price:85},
+  {name:"Chicken Tinola with Rice",price:75},
+  {name:"Bistek Tagalog with Rice",price:85},
+  {name:"Pork Giniling with Rice",price:70},
+  {name:"Fried Bangus with Rice",price:80},
+  {name:"Lumpiang Shanghai with Rice",price:65},
+  {name:"Tapsilog",price:85},
+  {name:"Longsilog",price:75},
+  {name:"Tocilog",price:75},
+  {name:"Pork BBQ with Rice",price:80},
+  {name:"Pork Sisig with Rice",price:85},
+  {name:"Kare-Kare with Rice",price:100},
+  {name:"Pinakbet with Rice",price:65}
 ];
 
-let foods=JSON.parse(localStorage.getItem("campusFoods"))||defaults;
-let cart=[];
+let savedFoods = JSON.parse(localStorage.getItem("campusFoods") || "null");
+let foods = Array.isArray(savedFoods) && savedFoods.length > 0
+  ? savedFoods
+  : defaults;
+
+localStorage.setItem("campusFoods", JSON.stringify(foods));
+
+let cart = [];
 
 const foodList=document.getElementById("foodList");
 const cartList=document.getElementById("cartList");
